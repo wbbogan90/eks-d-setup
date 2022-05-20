@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Update Ubuntu and install necessary packages
+# Update Ubuntu and install updated/necessary packages
 sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+sudo add-apt-repository ppa:git-core/ppa -y
+sudo apt-get install git -y
 
 # Install AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
