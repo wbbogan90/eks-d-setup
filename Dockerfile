@@ -11,10 +11,10 @@ ARG KUBEONE_URL=https://github.com/kubermatic/kubeone/releases/download/v1.4.3/k
 # Install needed binaries
 RUN yum install -y curl unzip
 
-# Make eks user, copy AWS credentials
-RUN useradd -ms /bin/bash -u 1000 eks && mkdir -p /home/eks/.aws
-COPY credentials /home/eks/.aws/.
-RUN chown -R eks:eks /home/eks/.aws && chmod 600 /home/eks/.aws/credentials
+# Make eks user, copy setup scripts
+RUN useradd -ms /bin/bash -u 1000 eks
+COPY *_setup.sh /home/eks/
+RUN chown -R eks:eks /home/eks && chmod 750 /home/eks/*_setup.sh
 
 # Install AWS CLI
 RUN curl $AWS_CLI_URL -o "awscliv2.zip" \
