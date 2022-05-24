@@ -1,20 +1,28 @@
 #!/bin/bash
 
+generate_s3_json() {
+    cat <<EOF
+{
+    "Rules":[
+        {
+            "ApplyServerSideEncryptionByDefault":{
+                "SSEAlgorithm": "aws:kms",
+                "KMSMasterKeyID":"$KMS_KEY_ARN"
+            },
+            "BucketKeyEnabled":true
+        }
+    ]
+}
+EOF
+}
+
 # Create bucket and dynamo db table for terraform backend
 aws s3api create-bucket \
     --bucket $S3_BUCKET \
     --acl private \
     --region $AWS_REGION \
     --create-bucket-configuration LocationConstraint=$AWS_REGION 2> /dev/null
-aws s3api put-bucket-encryption --bucket $S3_BUCKET --server-side-encryption-configuration '{
-    "Rules": [
-        {
-            "ApplyServerSideEncryptionByDefault": {
-                "SSEAlgorithm": "AES256"
-            }
-        }
-    ]
-}'
+aws s3api put-bucket-encryption --bucket $S3_BUCKET --cli-input-json "$(generate_s3_json)"
 aws s3api put-public-access-block \
     --bucket $S3_BUCKET \
     --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"

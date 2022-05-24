@@ -1,0 +1,5 @@
+name: eks-d
+dependencies:
+  - python=3.8
+  - botocore
+  - boto3
