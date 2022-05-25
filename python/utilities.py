@@ -23,7 +23,7 @@ class Util:
   def _get_ssh_secret(self) -> Tuple[str, str]:
     response = self.secretsmgr.get_secret_value(SecretId=SSH_SECRET_NAME)
     secret_json = json.loads(response['SecretString'])
-    return secret_json[PRIVATE_KEY], secret_json[PUBLIC_KEY]
+    return (secret_json[PRIVATE_KEY], secret_json[PUBLIC_KEY])
   
   def _store_ssh_secret(self, private_key:str, public_key:str) -> None:
     ssh_secret = {
@@ -52,6 +52,8 @@ class Util:
   def set_host_key(self) -> None:
     already_exists = self._secret_exists()
     ssh_key_filepath = f"{SSH_HOME}/{SSH_KEY_NAME}"
+    private_key = ''
+    public_key = ''
     if already_exists:
       private_key, public_key = self._get_ssh_secret()
       with open(ssh_key_filepath, "w") as priv_key_file:
@@ -59,6 +61,12 @@ class Util:
       with open(f"{ssh_key_filepath}.pub", "w") as pub_key_file:
         pub_key_file.write(public_key)
     else:
-      
+      command = f"ssh-keygen -b 4096 -f {ssh_key_filepath} -t RSA -N \"\""
+      os.system(command)
+      with open(ssh_key_filepath, "r") as priv_key_file:
+        private_key = priv_key_file.read()
+      with open(f"{ssh_key_filepath}.pub", "r") as pub_key_file:
+        public_key = pub_key_file.read()
+      self._store_ssh_secret(private_key, public_key)
     
   
