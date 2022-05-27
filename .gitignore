@@ -1,4 +1,4 @@
-**/.terraform
-**/.terraform.*
+terraform/.terraform/*
+terraform/*.hcl
 credentials
 **/__pycache__

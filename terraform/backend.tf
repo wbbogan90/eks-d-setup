@@ -1,13 +1,13 @@
 provider "aws" {
-    region = "us-east-2"
-    profile = "deo"
+    region = var.AWS_REGION
+    profile = var.AWS_PROFILE
 }
 
 terraform {
     backend "s3" {
-        bucket = "deo-eks-d-tf"
+        bucket = "sample-bucket"
         key = "terraform.tfstate"
-        region = "us-east-2"
-        dynamodb_table = "deo-eks-d-state-locking"
+        region = "sample-region"
+        dynamodb_table = "sample-table"
     }
 }

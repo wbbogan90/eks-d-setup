@@ -1,13 +1,32 @@
 import os, sys, json, boto3
 from typing import Tuple
 
-SSH_HOME = f"{str(os.environ['HOME'])}/.ssh"
+USER_HOME = str(os.environ['HOME'])
+AWS_PROFILE = str(os.environ['AWS_PROFILE'])
+TF_BACKEND_FILE = f"{USER_HOME}/terraform/backend.tf"
+SSH_HOME = f"{USER_HOME}/.ssh"
 SSH_KEY_NAME = 'ec2-user-ssh'
 SSH_SECRET_NAME = 'deo-eks-d-ssh'
 TF_BUCKET_NAME = 'deo-eks-d-tf'
 TF_TABLE_NAME = 'deo-eks-d-state-locking'
 PRIVATE_KEY = 'private'
 PUBLIC_KEY = 'public'
+
+BACKEND_SETTINGS = '''
+provider "aws" [
+    region = "{}"
+    profile = "{}"
+]
+
+terraform [
+    backend "s3" [
+        bucket = "{}"
+        key = "terraform.tfstate"
+        region = "{}"
+        dynamodb_table = "{}"
+    ]
+]
+'''
 
 class Setup:
   def __init__(self, region:str, kms_key_arn:str):
@@ -174,7 +193,10 @@ class Setup:
 if __name__ == '__main__':
   aws_region = sys.argv[1]
   kms_key_arn = sys.argv[2]
+  backend_settings = BACKEND_SETTINGS.format(aws_region, AWS_PROFILE, TF_BUCKET_NAME, aws_region, TF_TABLE_NAME).replace('[','{').replace(']','}')
   setup = Setup(region=aws_region, kms_key_arn=kms_key_arn)
   setup.set_terraform_backend()
   setup.set_host_key()
+  with open(TF_BACKEND_FILE, "w") as backend:
+    backend.write(backend_settings)
   

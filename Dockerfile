@@ -14,7 +14,7 @@ ARG KUBEONE_URL=https://github.com/kubermatic/kubeone/releases/download/v1.4.3/k
 # Update the package repositories and default certs for CentOS as required
 
 # Install needed binaries
-RUN yum install -y which nohup wget curl unzip python3
+RUN yum install -y which wget curl unzip python3
 
 # Make eks user, copy setup scripts
 RUN useradd -ms /bin/bash -u 1000 $USERNAME && \
@@ -47,10 +47,11 @@ RUN curl -L $KUBEONE_URL -o "kubeoneCLI.zip" \
     && rm -rf kubeone-cli
 
 ENV AWS_PROFILE=$PROFILE
-ENV S3_BUCKET=$BUCKET
 ENV KMS_KEY_ARN=$KMS_ARN
-ENV DYNAMO_TABLE=$TABLE
-ENV AWS_REGION=$REGION
+ENV TF_VAR_S3_BUCKET=$BUCKET
+ENV TF_VAR_AWS_PROFILE=$PROFILE
+ENV TF_VAR_DYNAMO_TABLE=$TABLE
+ENV TF_VAR_AWS_REGION=$REGION
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
